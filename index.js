@@ -36,6 +36,9 @@ app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+// Create an array to hold url and short
+let urlArray = [];
+
 // url shortener
 app.post('/api/shorturl', function (req, res) {
 
@@ -60,7 +63,7 @@ app.post('/api/shorturl', function (req, res) {
   
   // extract the url from the host name and remove the http:// or https:// and www. and the last slash if it exists
   const host = req.body.url.replace(/(^\w+:|^)\/\//, '').replace(/www./, '').replace(/\/$/, '');
-
+  
   // perform a dns lookup on the host name
   dns.lookup(host, (err, address, family) => {
 
@@ -69,15 +72,25 @@ app.post('/api/shorturl', function (req, res) {
     }
 
     else {
-      // save the url to the database
-      const newUrl = new Url({ original_url: req.body.url.replace(/\/$/, ''), short_url });
+      // // save the url to the database
+      // const newUrl = new Url({ original_url: req.body.url.replace(/\/$/, ''), short_url });
 
-      newUrl.save(function (err, data) {
-        if (err) return console.error(err);
+      // newUrl.save(function (err, data) {
+      //   if (err) return console.error(err);
 
-        // return the original url and the short url
-        res.json({ original_url: data.original_url, short_url });
-      });
+      //   // return the original url and the short url
+      //   res.json({ original_url: data.original_url, short_url });
+      // });
+
+      // Push the url and short as an object to the array if the url isn't already in the array 
+      if (urlArray.indexOf(req.body.url) === -1) {
+        urlArray.push({ original_url: req.body.url, short_url });
+      }
+
+      console.log(urlArray);
+
+      // return the last saved url
+      res.json(urlArray[urlArray.length - 1]);
     }
   });
 })
@@ -86,18 +99,32 @@ app.get('/api/shorturl/:short_url', function (req, res) {
   const short_url = req.params.short_url;
 
   // get the original url from the database
-  Url.findOne({ short_url: short_url }, function (err, data) {
-    if (err) return console.error(err);
+  // Url.findOne({ short_url: short_url }, function (err, data) {
+  //   if (err) return console.error(err);
 
-    // if the short url does not exist, return an error
-    if (!data) {
-      return res.json({ error: "invalid url" });
-    }
-    // else redirect to the original url
-    else {
-      data.original_url && res.redirect(301, data.original_url);
-    }
-  });
+  //   // if the short url does not exist, return an error
+  //   if (!data) {
+  //     return res.json({ error: "invalid url" });
+  //   }
+  //   // else redirect to the original url
+  //   else {
+  //     data.original_url && res.redirect(301, data.original_url);
+  //   }
+  // });
+
+  // get the original url from the array
+  const url = urlArray.find(url => url.short_url == short_url);
+
+  // if the short url does not exist, return an error
+  if (!url) {
+    return res.json({ error: "invalid url" });
+  }
+
+  // else redirect to the original url
+  else {
+    url.original_url && res.redirect(url.original_url);
+  }
+
 });
 
 app.listen(port, function () {
