@@ -48,24 +48,24 @@ app.post('/api/shorturl', function (req, res) {
 
   // if the url is empty, return an error
   if (!req.body.url) {
-    return res.json({ error: "invalid URL!" });
+    return res.json({ error: "invalid url!" });
   }
 
-  // check if the url is valid with http:// or https:// and www. using new URL
+  // check if the url is valid with http:// or https:// and www.
   try {
     new URL(req.body.url);
   } catch (err) {
-    return res.json({ error: "invalid URL" });
+    return res.json({ error: "invalid url" });
   }
-
-  // extract the url from the host name and remove the http:// or https:// and www.
-  const host = req.body.url.replace(/(^\w+:|^)\/\//, '').replace('www.', '');
+  
+  // extract the url from the host name and remove the http:// or https:// and www. and the last slash if it exists
+  const host = req.body.url.replace(/(^\w+:|^)\/\//, '').replace(/www./, '').replace(/\/$/, '');
 
   // perform a dns lookup on the host name
   dns.lookup(host, (err, address, family) => {
 
     if (err) {
-      return res.json({ error: "invalid URL" });
+      return res.json({ error: "invalid url" });
     }
 
     else {
