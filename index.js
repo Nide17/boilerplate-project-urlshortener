@@ -47,7 +47,7 @@ app.post('/api/shorturl', function (req, res) {
 
   // if the url is empty, return an error
   if (!req.body.url) {
-    return res.json({ error: "invalid url!" })
+    return res.json({ error: "invalid url" })
   }
 
   // check if the url is valid using URL constructor
@@ -56,12 +56,12 @@ app.post('/api/shorturl', function (req, res) {
 
     // check if the url has a valid host name
     if(!myUrl.hostname) {
-      return res.json({ error: "invalid url!" })
+      return res.json({ error: "invalid url" })
     }
 
     // check the protocol
     if(myUrl.protocol !== 'http:' && myUrl.protocol !== 'https:') {
-      return res.json({ error: "invalid url!" })
+      return res.json({ error: "invalid url" })
     }
 
     // if the url is valid save it to database
@@ -78,7 +78,7 @@ app.post('/api/shorturl', function (req, res) {
     
   }
   catch (err) {
-    return res.json({ error: "invalid url!" })
+    return res.json({ error: "invalid url" })
   }
   
 })
