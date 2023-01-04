@@ -70,7 +70,7 @@ app.post('/api/shorturl', function (req, res) {
 
     else {
       // save the url to the database
-      const newUrl = new Url({ original_url: req.body.url, short_url });
+      const newUrl = new Url({ original_url: req.body.url.replace(/\/$/, ''), short_url });
 
       newUrl.save(function (err, data) {
         if (err) return console.error(err);
