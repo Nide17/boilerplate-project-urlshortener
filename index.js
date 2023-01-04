@@ -86,16 +86,19 @@ app.get('/api/shorturl/:short_url', function (req, res) {
   const short_url = req.params.short_url;
 
   // get the original url from the database
-  Url.findOne({ short_url }, function (err, data) {
+  Url.findOne({ short_url: short_url }, function (err, data) {
+    if (err) return console.error(err);
 
-    if (err) return console.error("cannot be found");
-
-    res.redirect(data.original_url);
+    // if the short url does not exist, return an error
+    if (!data) {
+      return res.json({ error: "invalid url" });
+    }
+    // else redirect to the original url
+    else {
+      data.original_url && res.redirect(301, data.original_url);
+    }
   });
-
 });
-
-
 
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
