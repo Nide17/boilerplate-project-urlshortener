@@ -39,8 +39,6 @@ app.get('/api/hello', function (req, res) {
 // url shortener
 app.post('/api/shorturl', function (req, res) {
 
-  let url = req.body.url;
-
   let short_url = req.body.short_url;
   // if the url is empty, return an error, generate a random number for the short url
   if (!short_url) {
@@ -49,19 +47,19 @@ app.post('/api/shorturl', function (req, res) {
   }
 
   // if the url is empty, return an error
-  if (!url) {
+  if (!req.body.url) {
     return res.json({ error: "invalid URL!" });
   }
 
   // check if the url is valid with http:// or https:// and www. using new URL
   try {
-    new URL(url);
+    new URL(req.body.url);
   } catch (err) {
     return res.json({ error: "invalid URL" });
   }
 
   // extract the url from the host name and remove the http:// or https:// and www.
-  const host = url.replace(/(^\w+:|^)\/\//, '').replace('www.', '');
+  const host = req.body.url.replace(/(^\w+:|^)\/\//, '').replace('www.', '');
 
   // perform a dns lookup on the host name
   dns.lookup(host, (err, address, family) => {
@@ -72,13 +70,13 @@ app.post('/api/shorturl', function (req, res) {
 
     else {
       // save the url to the database
-      const newUrl = new Url({ original_url: url, short_url });
+      const newUrl = new Url({ original_url: req.body.url, short_url });
 
       newUrl.save(function (err, data) {
         if (err) return console.error(err);
 
         // return the original url and the short url
-        res.json({ original_url: req.body.url, short_url });
+        res.json({ original_url: data.original_url, short_url });
       });
     }
   });
