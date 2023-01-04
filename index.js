@@ -77,10 +77,6 @@ app.post('/api/shorturl', function (req, res) {
       newUrl.save(function (err, data) {
         if (err) return console.error(err);
 
-        let url2 = new URL(req.body.url);
-        console.log('req.body.url', req.body.url)
-        console.log('url.origin', url2.origin)
-
         // return the original url and the short url
         res.json({ original_url: req.body.url, short_url });
       });
