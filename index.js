@@ -39,8 +39,14 @@ app.get('/api/hello', function (req, res) {
 // url shortener
 app.post('/api/shorturl', function (req, res) {
 
-  const url = req.body.url;
-  const short_url = req.body.short_url;
+  let url = req.body.url;
+
+  let short_url = req.body.short_url;
+  // if the url is empty, return an error, generate a random number for the short url
+  if (!short_url) {
+    // generate a random number for the short url
+    short_url = Math.floor(Math.random() * 1000);
+  }
 
   // if the url is empty, return an error
   if (!url) {
