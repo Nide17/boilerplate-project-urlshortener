@@ -53,14 +53,18 @@ app.post('/api/shorturl', function (req, res) {
     return res.json({ error: "invalid URL! Empty!" });
   }
 
-  // extract the url from the host name and remove the http:// or https:// and www.
+  // check if the url is valid with http:// or https://
+  if (!url.match(/(http|https):\/\//)) {
+    url = `http://${url}`;
+  }
+
+    // extract the url from the host name and remove the http:// or https:// and www.
   const host = url.replace(/(^\w+:|^)\/\//, '').replace('www.', '');
 
   // perform a dns lookup on the host name
   dns.lookup(host, (err, address, family) => {
 
     if (err) {
-      console.log(err)
       return res.json({ error: "invalid URL" });
     }
 
@@ -70,7 +74,6 @@ app.post('/api/shorturl', function (req, res) {
 
       newUrl.save(function (err, data) {
         if (err) return console.error(err);
-        console.log(data);
 
         // return the original url and the short url
         res.json({ original_url: url, short_url });
