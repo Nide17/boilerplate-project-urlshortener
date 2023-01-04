@@ -50,15 +50,17 @@ app.post('/api/shorturl', function (req, res) {
 
   // if the url is empty, return an error
   if (!url) {
-    return res.json({ error: "invalid URL! Empty!" });
+    return res.json({ error: "invalid URL!" });
   }
 
-  // check if the url is valid with http:// or https://
-  if (!url.match(/(http|https):\/\//)) {
-    url = `http://${url}`;
+  // check if the url is valid with http:// or https:// and www. using new URL
+  try {
+    new URL(url);
+  } catch (err) {
+    return res.json({ error: "invalid URL" });
   }
 
-    // extract the url from the host name and remove the http:// or https:// and www.
+  // extract the url from the host name and remove the http:// or https:// and www.
   const host = url.replace(/(^\w+:|^)\/\//, '').replace('www.', '');
 
   // perform a dns lookup on the host name
@@ -75,8 +77,12 @@ app.post('/api/shorturl', function (req, res) {
       newUrl.save(function (err, data) {
         if (err) return console.error(err);
 
+        let url2 = new URL(req.body.url);
+        console.log('req.body.url', req.body.url)
+        console.log('url.origin', url2.origin)
+
         // return the original url and the short url
-        res.json({ original_url: url, short_url });
+        res.json({ original_url: req.body.url, short_url });
       });
     }
   });
@@ -88,7 +94,7 @@ app.get('/api/shorturl/:short_url', function (req, res) {
   // get the original url from the database
   Url.findOne({ short_url }, function (err, data) {
 
-    if(err) return console.error("cannot be found");
+    if (err) return console.error("cannot be found");
 
     res.redirect(data.original_url);
   });
